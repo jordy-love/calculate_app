@@ -48,17 +48,60 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   var _result = "";
   var _buffer = "";
+  List<int> intArr = <int>[];
+  List<String> opArr = <String>[];
+  var numChk = "";
 
   void addNumbers(String key) {
     var operator = ['+', '-', '÷', 'X'];
-    print(key);
 
-    if (key == "C")
+    if (key == "C") {
       _buffer = "";
-    else {
+      numChk = "";
+      intArr.clear();
+      opArr.clear();
+
+    } else {
       _buffer += key;
+
+      if (operator.contains(key) || key == "=") {
+        intArr.add(int.parse(numChk));
+        opArr.add(key);
+        numChk = "";
+      } else {
+        numChk += key;
+      }
     }
+
+    if (key == "=") {
+      num calc = intArr[0];
+      for (var i = 0; i < intArr.length; i++) {
+        //print(intArr[i].toString() + "//" + opArr[i]);
+        if (i==0) continue;
+
+        switch (opArr[i-1]) {
+          case "+":
+            calc = calc + intArr[i];
+            break;
+          case "-":
+            calc = calc - intArr[i];
+            break;
+          case "÷":
+            calc = calc / intArr[i];
+            break;
+          case "X":
+            calc = calc * intArr[i];
+            break;
+        }
+        print('calc: $calc');
+      }
+      _buffer = calc.toString();
+    }
+
     // else if (operator.contains(key)) {
+    //var last_str = (_buffer.length > 0)? _buffer.substring(_buffer.length-1) : "";
+    //print("_buffer:" + _buffer + ", last:" + last_str + ', leng: ' + _buffer.length.toString() );
+    print(intArr.toString() + "," + opArr.toString());
 
     setState(() {
       _result = _buffer;
@@ -152,16 +195,16 @@ class _MyHomePageState extends State<MyHomePage> {
             Row(
               children: [
                 ElevatedButton(
-                  onPressed: () => addNumbers('3'),
-                  child: Text('3'),
+                  onPressed: () => addNumbers('1'),
+                  child: Text('1'),
                 ),
                 ElevatedButton(
                   onPressed: () => addNumbers('2'),
                   child: Text('2'),
                 ),
                 ElevatedButton(
-                  onPressed: () => addNumbers('1'),
-                  child: Text('1'),
+                  onPressed: () => addNumbers('3'),
+                  child: Text('3'),
                 ),
                 ElevatedButton(
                   onPressed: () => addNumbers('+'),
