@@ -5,40 +5,20 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or simply save your changes to "hot reload" in a Flutter IDE).
-        // Notice that the counter didn't reset back to zero; the application
-        // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
+      home: MyHomePage(title: 'Caculator App'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title;
 
   @override
@@ -46,66 +26,79 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var _result = "";
-  var _buffer = "";
-  List<int> intArr = <int>[];
-  List<String> opArr = <String>[];
-  var numChk = "";
+  var result = ""; // 결과
+  var buffer = ""; // 출력버퍼
+  List<int> numberArr = <int>[]; // 피연산자 배열
+  List<String> operatorArr = <String>[]; // 연산자 배
+  var pressedNumber = ""; // 들어온 값이 숫자이면 저장
+  bool calc = false; // 계산완료 여부
+
+  void initNumbers() {
+    buffer = "";
+    pressedNumber = "";
+    numberArr.clear();
+    operatorArr.clear();
+  }
 
   void addNumbers(String key) {
-    var operator = ['+', '-', '÷', 'X'];
+    var operator = ['+', '-', '*', '/'];
 
     if (key == "C") {
-      _buffer = "";
-      numChk = "";
-      intArr.clear();
-      opArr.clear();
-
+      initNumbers();
     } else {
-      _buffer += key;
-
       if (operator.contains(key) || key == "=") {
-        intArr.add(int.parse(numChk));
-        opArr.add(key);
-        numChk = "";
+        numberArr.add(int.parse(pressedNumber));
+        operatorArr.add(key);
+        pressedNumber = "";
       } else {
-        numChk += key;
+        pressedNumber += key;
       }
+      buffer += key;
     }
 
     if (key == "=") {
-      num calc = intArr[0];
-      for (var i = 0; i < intArr.length; i++) {
-        //print(intArr[i].toString() + "//" + opArr[i]);
-        if (i==0) continue;
+      num firstOperand = numberArr[0]; // 첫번째 피연산자
+      num sum = firstOperand; // 계산식 합계
 
-        switch (opArr[i-1]) {
+      for (var i = 0; i < numberArr.length; i++) {
+        if (i == 0) continue;
+        String operator = operatorArr[i - 1];
+
+        switch (operator) {
           case "+":
-            calc = calc + intArr[i];
+            sum = sum + numberArr[i];
             break;
           case "-":
-            calc = calc - intArr[i];
+            sum = sum - numberArr[i];
             break;
-          case "÷":
-            calc = calc / intArr[i];
+          case "/":
+            sum = sum / numberArr[i];
             break;
-          case "X":
-            calc = calc * intArr[i];
+          case "*":
+            sum = sum * numberArr[i];
             break;
         }
-        print('calc: $calc');
+        print('계산합: $sum');
       }
-      _buffer = calc.toString();
+
+      initNumbers();
+      buffer = sum.toString();
+
+      // 계산완료
+      calc = true;
+      numberArr.add(sum);
     }
 
-    // else if (operator.contains(key)) {
-    //var last_str = (_buffer.length > 0)? _buffer.substring(_buffer.length-1) : "";
-    //print("_buffer:" + _buffer + ", last:" + last_str + ', leng: ' + _buffer.length.toString() );
-    print(intArr.toString() + "," + opArr.toString());
+    print(numberArr.toString() + "," + operatorArr.toString());
 
     setState(() {
-      _result = _buffer;
+      result = buffer;
     });
+  }
+
+  @override
+  void initState() {
+    initNumbers();
   }
 
   @override
@@ -124,33 +117,23 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         alignment: Alignment.center,
-        padding: EdgeInsets.all(20),
+        //padding: EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              _result,
-              style: TextStyle(fontSize: 40),
-            ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => addNumbers('C'),
-                  child: Text('C'),
+            Container(
+              width: double.infinity,
+              height: 120,
+              color: Colors.black,
+              alignment: Alignment.bottomRight,
+              padding: EdgeInsets.only(right: 24, bottom: 24),
+              child: Text(
+                result,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 34,
                 ),
-                ElevatedButton(
-                  onPressed: () => addNumbers(''),
-                  child: Text(''),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('del'),
-                  child: Text('del'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('÷'),
-                  child: Text('÷'),
-                ),
-              ],
+              ),
             ),
             Row(
               children: [
@@ -167,8 +150,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: Text('9'),
                 ),
                 ElevatedButton(
-                  onPressed: () => addNumbers('X'),
-                  child: Text('X'),
+                  onPressed: () => addNumbers('+'),
+                  child: Text('+'),
                 ),
               ],
             ),
@@ -192,46 +175,49 @@ class _MyHomePageState extends State<MyHomePage> {
                 ),
               ],
             ),
-            Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => addNumbers('1'),
-                  child: Text('1'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('2'),
-                  child: Text('2'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('3'),
-                  child: Text('3'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('+'),
-                  child: Text('+'),
-                ),
-              ],
+            Expanded(
+              flex: 3,
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: () => addNumbers('1'),
+                    child: Text('1'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => addNumbers('2'),
+                    child: Text('2'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => addNumbers('3'),
+                    child: Text('3'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => addNumbers('*'),
+                    child: Text('*'),
+                  ),
+                ],
+              ),
             ),
             Row(
               children: [
+                ElevatedButton(
+                  onPressed: () => addNumbers('C'),
+                  child: Text('C'),
+                ),
                 ElevatedButton(
                   onPressed: () => addNumbers('0'),
                   child: Text('0'),
                 ),
                 ElevatedButton(
-                  onPressed: () => addNumbers(''),
-                  child: Text(''),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers(''),
-                  child: Text(''),
-                ),
-                ElevatedButton(
                   onPressed: () => addNumbers('='),
                   child: Text('='),
                 ),
+                ElevatedButton(
+                  onPressed: () => addNumbers('/'),
+                  child: Text('/'),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
