@@ -25,6 +25,33 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+class MyButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onPressed;
+  double size;
+
+  MyButton(this.label, this.onPressed);
+
+  @override
+  Widget build(BuildContext context) {
+    size = MediaQuery.of(context).size.width / 4;
+
+    return Container(
+      width: size,
+      padding: EdgeInsets.all(2),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 25,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   var result = ""; // 결과
   var buffer = ""; // 출력버퍼
@@ -50,7 +77,12 @@ class _MyHomePageState extends State<MyHomePage> {
         numberArr.add(int.parse(pressedNumber));
         operatorArr.add(key);
         pressedNumber = "";
+        calc = false; // 계산완료후 연산자입력 받으면 계산완료변수 초기화
       } else {
+        if (calc) {
+          initNumbers(); // 계산완료후 숫자버튼을 바로누르면 버퍼초기화, 계산완료변수 초기화
+          calc = false;
+        }
         pressedNumber += key;
       }
       buffer += key;
@@ -84,9 +116,9 @@ class _MyHomePageState extends State<MyHomePage> {
       initNumbers();
       buffer = sum.toString();
 
-      // 계산완료
+      // 계산완료 & 계산완료후 추가입력을 받기위한 결과저장
       calc = true;
-      numberArr.add(sum);
+      pressedNumber = buffer;
     }
 
     print(numberArr.toString() + "," + operatorArr.toString());
@@ -136,88 +168,37 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
             ),
             Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => addNumbers('7'),
-                  child: Text('7'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('8'),
-                  child: Text('8'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('9'),
-                  child: Text('9'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('+'),
-                  child: Text('+'),
-                ),
+              children: <Widget>[
+                MyButton('7', () => addNumbers('7')),
+                MyButton('8', () => addNumbers('8')),
+                MyButton('9', () => addNumbers('9')),
+                MyButton('+', () => addNumbers('+')),
               ],
             ),
             Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => addNumbers('4'),
-                  child: Text('4'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('5'),
-                  child: Text('5'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('6'),
-                  child: Text('6'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('-'),
-                  child: Text('-'),
-                ),
+              children: <Widget>[
+                MyButton('4', () => addNumbers('4')),
+                MyButton('5', () => addNumbers('5')),
+                MyButton('6', () => addNumbers('6')),
+                MyButton('-', () => addNumbers('-')),
               ],
-            ),
-            Expanded(
-              flex: 3,
-              child: Row(
-                children: [
-                  ElevatedButton(
-                    onPressed: () => addNumbers('1'),
-                    child: Text('1'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => addNumbers('2'),
-                    child: Text('2'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => addNumbers('3'),
-                    child: Text('3'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () => addNumbers('*'),
-                    child: Text('*'),
-                  ),
-                ],
-              ),
             ),
             Row(
-              children: [
-                ElevatedButton(
-                  onPressed: () => addNumbers('C'),
-                  child: Text('C'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('0'),
-                  child: Text('0'),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('='),
-                  child: Text('='),
-                ),
-                ElevatedButton(
-                  onPressed: () => addNumbers('/'),
-                  child: Text('/'),
-                ),
+              children: <Widget>[
+                MyButton('1', () => addNumbers('1')),
+                MyButton('2', () => addNumbers('2')),
+                MyButton('3', () => addNumbers('3')),
+                MyButton('*', () => addNumbers('*')),
               ],
             ),
+            Row(
+              children: <Widget>[
+                MyButton('C', () => addNumbers('C')),
+                MyButton('0', () => addNumbers('0')),
+                MyButton('=', () => addNumbers('=')),
+                MyButton('/', () => addNumbers('/')),
+              ],
+            )
           ],
         ),
       ),
